@@ -1,0 +1,28 @@
+{
+  "GradientBoosting": {
+    "best_params": {
+      "classifier__learning_rate": 0.03,
+      "classifier__max_depth": 3,
+      "classifier__n_estimators": 200,
+      "classifier__subsample": 0.8
+    },
+    "best_cv_pr_auc": 0.6718946416040079
+  },
+  "LogisticRegression": {
+    "best_params": {
+      "classifier__C": 1.0,
+      "classifier__class_weight": null,
+      "classifier__solver": "lbfgs"
+    },
+    "best_cv_pr_auc": 0.6614931439626843
+  },
+  "RandomForest": {
+    "best_params": {
+      "classifier__class_weight": null,
+      "classifier__max_depth": 8,
+      "classifier__min_samples_split": 10,
+      "classifier__n_estimators": 200
+    },
+    "best_cv_pr_auc": 0.6643790362559564
+  }
+}

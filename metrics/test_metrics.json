@@ -1,0 +1,53 @@
+{
+  "model_name": "GradientBoostingClassifier (Tuned)",
+  "default_threshold_0.50": {
+    "threshold": 0.5,
+    "accuracy": 0.8048261178140526,
+    "precision": 0.671280276816609,
+    "recall": 0.5187165775401069,
+    "f1": 0.5852187028657617,
+    "specificity": 0.9082125603864735,
+    "tp": 194,
+    "fp": 95,
+    "tn": 940,
+    "fn": 180,
+    "confusion_matrix": [
+      [
+        940,
+        95
+      ],
+      [
+        180,
+        194
+      ]
+    ],
+    "roc_auc": 0.8463018936164717,
+    "pr_auc": 0.6607633251436199,
+    "brier_score": 0.1351477177774082
+  },
+  "tuned_threshold": {
+    "threshold": 0.32,
+    "accuracy": 0.7707594038325053,
+    "precision": 0.5511022044088176,
+    "recall": 0.7352941176470589,
+    "f1": 0.6300114547537228,
+    "specificity": 0.7835748792270532,
+    "tp": 275,
+    "fp": 224,
+    "tn": 811,
+    "fn": 99,
+    "confusion_matrix": [
+      [
+        811,
+        224
+      ],
+      [
+        99,
+        275
+      ]
+    ],
+    "roc_auc": 0.8463018936164717,
+    "pr_auc": 0.6607633251436199,
+    "brier_score": 0.1351477177774082
+  }
+}

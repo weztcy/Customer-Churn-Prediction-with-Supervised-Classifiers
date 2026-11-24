@@ -1,0 +1,202 @@
+"""
+Generates the fully documented, reproducible Jupyter Notebook for Customer Churn Prediction.
+"""
+
+import os
+import json
+
+def create_notebook():
+    notebook_path = "notebooks/churn_project.ipynb"
+    
+    cells = [
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "# Customer Churn Prediction with Supervised Classifiers\n",
+                "## End-to-End Supervised Learning Workflow\n",
+                "\n",
+                "This notebook provides a complete, reproducible walkthrough of the Telco Customer Churn binary classification project.\n",
+                "It covers data inspection, cleaning, exploratory data analysis, pipeline-based preprocessing without data leakage, baseline comparison, 5-fold cross-validation, hyperparameter tuning, out-of-fold threshold selection, final test evaluation, and model interpretation."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "import os\n",
+                "import sys\n",
+                "import json\n",
+                "import numpy as np\n",
+                "import pandas as pd\n",
+                "import matplotlib.pyplot as plt\n",
+                "import seaborn as sns\n",
+                "\n",
+                "sys.path.append('../src')\n",
+                "from data_preprocessing import load_and_clean_data, get_feature_splits, build_preprocessor, RANDOM_STATE\n",
+                "\n",
+                "print(f'Random State: {RANDOM_STATE}')"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 1. Data Inspection & Cleaning\n",
+                "- Trims whitespace in string fields.\n",
+                "- Coerces `TotalCharges` to numeric.\n",
+                "- 11 blank `TotalCharges` values belong to new customers (`tenure = 0`). Domain-based imputation sets them to `0.0`.\n",
+                "- Drops `customerID` from predictive features."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "df = load_and_clean_data('../dataset/Telco-Customer-Churn.csv')\n",
+                "print(f'Dataset shape: {df.shape}')\n",
+                "print(f'Churn distribution:\\n{df[\"Churn\"].value_counts(normalize=True) * 100}')\n",
+                "df.head()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 2. Stratified Train/Test Split & Preprocessing Pipelines\n",
+                "- 80% Training set (5,634 rows), 20% Test set (1,409 rows).\n",
+                "- Preprocessing uses `ColumnTransformer` with median imputation + standard scaling for numerical features, and most frequent imputation + one-hot encoding for categorical features.\n",
+                "- All transformations are fitted strictly within training folds to eliminate data leakage."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "X_train, X_test, y_train, y_test, num_features, cat_features = get_feature_splits(df)\n",
+                "print(f'Training shape: {X_train.shape}, Test shape: {X_test.shape}')\n",
+                "print(f'Numerical features ({len(num_features)}): {num_features}')\n",
+                "print(f'Categorical features ({len(cat_features)}): {cat_features}')"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 3. Model Comparison (5-Fold Stratified Cross-Validation on Training Set)\n",
+                "We evaluate a naive `DummyClassifier`, interpretable `LogisticRegression` (with and without class weighting), `DecisionTreeClassifier`, `RandomForestClassifier`, and boosting models."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "with open('../outputs/metrics/cv_comparison_results.json', 'r') as f:\n",
+                "    cv_data = json.load(f)\n",
+                "\n",
+                "df_cv = pd.DataFrame(cv_data).T[['val_roc_auc_mean', 'val_pr_auc_mean', 'val_f1_mean', 'val_recall_mean', 'val_precision_mean', 'val_accuracy_mean']]\n",
+                "df_cv.columns = ['ROC-AUC', 'PR-AUC', 'F1-Score', 'Recall', 'Precision', 'Accuracy']\n",
+                "df_cv.sort_values(by='PR-AUC', ascending=False)"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 4. Hyperparameter Tuning Results\n",
+                "Systematic tuning via `GridSearchCV` on the training set optimizing PR-AUC (`average_precision`)."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "with open('../outputs/metrics/tuning_results.json', 'r') as f:\n",
+                "    tuning = json.load(f)\n",
+                "for m, details in tuning.items():\n",
+                "    print(f\"{m}: Best CV PR-AUC = {details['best_cv_pr_auc']:.4f}\")\n",
+                "    print(f\"   Params: {details['best_params']}\\n\")"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 5. Final Evaluation on Untouched Test Set\n",
+                "Evaluating the tuned Gradient Boosting pipeline at default threshold (0.50) and out-of-fold tuned threshold (0.32)."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "with open('../outputs/metrics/test_metrics.json', 'r') as f:\n",
+                "    test_metrics = json.load(f)\n",
+                "\n",
+                "print('--- Test Set Performance ---')\n",
+                "print(f\"Default Threshold (0.50): Accuracy={test_metrics['default_threshold_0.50']['accuracy']:.4f}, \"\n",
+                "      f\"Recall={test_metrics['default_threshold_0.50']['recall']:.4f}, Precision={test_metrics['default_threshold_0.50']['precision']:.4f}, \"\n",
+                "      f\"F1={test_metrics['default_threshold_0.50']['f1']:.4f}\")\n",
+                "print(f\"Tuned Threshold (0.32):   Accuracy={test_metrics['tuned_threshold']['accuracy']:.4f}, \"\n",
+                "      f\"Recall={test_metrics['tuned_threshold']['recall']:.4f}, Precision={test_metrics['tuned_threshold']['precision']:.4f}, \"\n",
+                "      f\"F1={test_metrics['tuned_threshold']['f1']:.4f}\")\n",
+                "print(f\"ROC-AUC: {test_metrics['default_threshold_0.50']['roc_auc']:.4f}, PR-AUC: {test_metrics['default_threshold_0.50']['pr_auc']:.4f}, Brier: {test_metrics['default_threshold_0.50']['brier_score']:.4f}\")"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### 6. Permutation Feature Importance\n",
+                "Top predictive features on held-out test data."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "with open('../outputs/metrics/permutation_importance.json', 'r') as f:\n",
+                "    fi_data = json.load(f)\n",
+                "pd.DataFrame(fi_data).T.sort_values(by='mean_importance', ascending=False).head(10)"
+            ]
+        }
+    ]
+    
+    nb = {
+        "cells": cells,
+        "metadata": {
+            "kernelspec": {
+                "display_name": "Python 3",
+                "language": "python",
+                "name": "python3"
+            },
+            "language_info": {
+                "name": "python",
+                "version": "3.15.1"
+            }
+        },
+        "nbformat": 4,
+        "nbformat_minor": 5
+    }
+    
+    os.makedirs(os.path.dirname(notebook_path), exist_ok=True)
+    with open(notebook_path, "w", encoding="utf-8") as f:
+        json.dump(nb, f, indent=2)
+    print(f"Jupyter notebook saved to {notebook_path}")
+
+if __name__ == "__main__":
+    create_notebook()

@@ -1,0 +1,62 @@
+{
+  "Contract": {
+    "mean_importance": 0.09640827243572478,
+    "std_importance": 0.005710725359420984
+  },
+  "tenure": {
+    "mean_importance": 0.08778299620198263,
+    "std_importance": 0.014325714610897999
+  },
+  "TotalCharges": {
+    "mean_importance": 0.045633096237081484,
+    "std_importance": 0.011018101609608387
+  },
+  "TechSupport": {
+    "mean_importance": 0.019143353459263258,
+    "std_importance": 0.00514264950416756
+  },
+  "OnlineSecurity": {
+    "mean_importance": 0.018817101366650425,
+    "std_importance": 0.005391086962641854
+  },
+  "InternetService": {
+    "mean_importance": 0.016609076504297694,
+    "std_importance": 0.011018024107581133
+  },
+  "PaperlessBilling": {
+    "mean_importance": 0.005643278208862124,
+    "std_importance": 0.0073884545259936246
+  },
+  "MonthlyCharges": {
+    "mean_importance": 0.004843004528386241,
+    "std_importance": 0.008458773287084956
+  },
+  "SeniorCitizen": {
+    "mean_importance": 0.0024048751218381237,
+    "std_importance": 0.0015031790658373162
+  },
+  "PaymentMethod": {
+    "mean_importance": 0.002091224606573161,
+    "std_importance": 0.003623264490532496
+  },
+  "MultipleLines": {
+    "mean_importance": 0.0008755201265827073,
+    "std_importance": 0.007436709311704341
+  },
+  "PhoneService": {
+    "mean_importance": 0.0005884219594952334,
+    "std_importance": 0.00032139764284485413
+  },
+  "StreamingMovies": {
+    "mean_importance": 0.00023902372151255458,
+    "std_importance": 0.00135374903840985
+  },
+  "gender": {
+    "mean_importance": 5.598174232479547e-05,
+    "std_importance": 0.0003289071611960942
+  },
+  "OnlineBackup": {
+    "mean_importance": -0.00043257427192037177,
+    "std_importance": 0.0031894729782265888
+  }
+}
